@@ -35,7 +35,7 @@ class GroupController extends Controller
 
         if ($request->hasFile('group_picture')) {
             $group_picture = $request->file('group_picture');
-            $imageName = $group_picture->getClientOriginalName();
+            $imageName = uniqid() . '_' . $group_picture->getClientOriginalName();
             $group_picture->move(public_path('storage/photos'), $imageName);
             $group->group_picture = 'photos/' . $imageName;
             $group->save();
@@ -78,11 +78,11 @@ class GroupController extends Controller
         if ($request->hasFile('group_picture')) {
             $oldPicture = $group->group_picture;
             if ($oldPicture) {
-                Storage::disk('public')->delete($oldPicture);
+                unlink(public_path('storage/' . $oldPicture));
             }
 
             $group_picture = $request->file('group_picture');
-            $imageName = $group_picture->getClientOriginalName();
+            $imageName = uniqid() . '_' . $group_picture->getClientOriginalName();
             $group_picture->move(public_path('storage/photos'), $imageName);
 
             $group->group_picture = 'photos/' . $imageName;
@@ -90,11 +90,11 @@ class GroupController extends Controller
         if ($request->hasFile('group_icon')) {
             $oldPicture = $group->group_icon;
             if ($oldPicture) {
-                Storage::disk('public')->delete($oldPicture);
+                unlink(public_path('storage/' . $oldPicture));
             }
 
             $group_icon = $request->file('group_icon');
-            $iconName = $group_icon->getClientOriginalName();
+            $iconName = uniqid() . '_' . $group_icon->getClientOriginalName();
             $group_icon->move(public_path('storage/photos'), $iconName);
 
             $group->group_icon = 'photos/' . $iconName;

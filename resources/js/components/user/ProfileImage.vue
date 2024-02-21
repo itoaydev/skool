@@ -72,7 +72,7 @@ const handleUpdate = () => {
   // Check if there's a file selected
   const imageFile = document.getElementById("image").files[0];
   if (imageFile) {
-    formData.append("image", imageFile);
+    formData.append("image", user.value.image);
   }
   axios
     .post(`/api/users/${user.value.id}/update`, formData, {

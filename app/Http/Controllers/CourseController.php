@@ -24,7 +24,7 @@ class CourseController extends Controller
 
         if ($request->hasFile('course_image')) {
             $course_image = $request->file('course_image');
-            $imageName = $course_image->getClientOriginalName();
+            $imageName = uniqid() . '_' . $course_image->getClientOriginalName();
             $course_image->move(public_path('storage/photos'), $imageName);
 
             $course->course_image = 'photos/' . $imageName;

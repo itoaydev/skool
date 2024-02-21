@@ -32,7 +32,7 @@ class UserController extends Controller
             'message' => 'User updated successfully',
         ]);
     }
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         $user = User::find($id);
 
@@ -44,10 +44,10 @@ class UserController extends Controller
 
             $oldPicture = $user->image;
             if ($oldPicture) {
-                Storage::disk('public')->delete($oldPicture);
+                unlink(public_path('storage/' . $oldPicture));
             }
             $image = $request->file('image');
-            $imageName = $image->getClientOriginalName();
+            $imageName = uniqid() . '_' . $image->getClientOriginalName();
             $image->move(public_path('storage/photos'), $imageName);
 
             $user->image = 'photos/' . $imageName;
