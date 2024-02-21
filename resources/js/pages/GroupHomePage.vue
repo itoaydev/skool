@@ -132,7 +132,7 @@ onMounted(() => {
 
 async function fetchUserData(userID) {
   try {
-    const res = await axios.get(`/api/user/${userID}`);
+    const res = await axios.get(`/api/users/${userID}`);
     userData.value = res.data;
   } catch (error) {
     console.log(error);

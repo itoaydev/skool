@@ -14,7 +14,7 @@
         </button>
         <div class="flex flex-wrap -m-4 mt-3">
           <div v-for="course in courses" :key="course.id" class="p-4 md:w-1/3">
-            <div class="h-full shadow-sm bg-white rounded-lg overflow-hidden">
+            <div class="h-full overflow-hidden duration-300 bg-white rounded-lg dark:bg-dark-2 shadow-1 hover:shadow-3 dark:shadow-card dark:hover:shadow-3 hover:shadow-md">
               <img
                 class="lg:h-48 md:h-36 w-full object-cover object-center"
                 :src="`/storage/${course.course_image}`"
@@ -203,6 +203,7 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { defineProps } from "vue";
+
 const courseImage = ref(null);
 const router = useRouter();
 const courses = ref([]);
@@ -227,6 +228,7 @@ const errors = ref({
 });
 
 const openFileInput = () => fileInput.value.click();
+
 const handleFileChange = (event) => {
   const file = event.target.files[0];
   courseImage.value = URL.createObjectURL(file);
@@ -234,60 +236,93 @@ const handleFileChange = (event) => {
 };
 
 const createCourse = () => {
+  const isValid = validateCourseData();
+
+  if (isValid) {
+    sendCourseData();
+  }
+};
+
+const validateCourseData = () => {
   let isValid = true;
-  if (courseData.value.course_name == "") {
+
+  if (!courseData.value.course_name) {
     errors.value.course_name = "Please Input Name";
     isValid = false;
   }
-  if (courseData.value.course_description == "") {
+
+  if (!courseData.value.course_description) {
     errors.value.course_description = "Please Input Description";
     isValid = false;
   }
-  if (courseData.value.course_image == "") {
+
+  if (!courseData.value.course_image) {
     errors.value.course_image = "Image is Required";
     isValid = false;
   }
 
-  if (isValid) {
-    isLoading.value = true;
-    const formData = new FormData();
-    formData.append("course_name", courseData.value.course_name);
-    formData.append("course_description", courseData.value.course_description);
-    formData.append("course_image", courseData.value.course_image);
-    formData.append("group_id", courseData.value.group_id);
+  return isValid;
+};
 
-    axios
-      .post("/api/course", formData)
-      .then((response) => {
-        courses.value.push(response.data.course);
-        courseData.value = {
-          course_name: "",
-          course_description: "",
-          course_image: "",
-        };
-        errors.value = {
-          course_name: "",
-          course_description: "",
-          course_image: "",
-        };
-        courseImage.value = null;
-        document.getElementById("image").value = "";
-        isLoading.value = false;
-      })
-      .catch((error) => {
-        console.error("Error creating course:", error);
-      });
-  }
+const sendCourseData = () => {
+  isLoading.value = true;
+  const formData = new FormData();
+  formData.append("course_name", courseData.value.course_name);
+  formData.append("course_description", courseData.value.course_description);
+  formData.append("course_image", courseData.value.course_image);
+  formData.append("group_id", courseData.value.group_id);
+
+  axios
+    .post("/api/courses/store", formData)
+    .then((response) => {
+      handleSuccessResponse(response);
+    })
+    .catch((error) => {
+      console.error("Error creating course:", error);
+    });
+};
+
+const handleSuccessResponse = (response) => {
+  courses.value.push(response.data.course);
+  resetCourseData();
+  isLoading.value = false;
+};
+
+const resetCourseData = () => {
+  courseData.value = {
+    course_name: "",
+    course_description: "",
+    course_image: "",
+    group_id: router.currentRoute.value.params.id,
+  };
+  resetErrors();
+  courseImage.value = null;
+  document.getElementById("image").value = "";
+};
+
+const resetErrors = () => {
+  errors.value = {
+    course_name: "",
+    course_description: "",
+    course_image: "",
+  };
 };
 
 const getCourse = () => {
   axios
-    .get(`/api/getCourse/${courseData.value.group_id}`)
-    .then((res) => (courses.value = res.data))
-    .catch((error) => console.log(error));
+    .get(`/api/courses/${courseData.value.group_id}/show`)
+    .then((res) => {
+      courses.value = res.data;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
 
-onMounted(() => getCourse());
+onMounted(() => {
+  getCourse();
+});
 </script>
+
 
 <style></style>

@@ -174,7 +174,7 @@ onMounted(() => {
 
 async function fetchCreatorName(creatorId) {
   try {
-    const res = await axios.get(`/api/user/${creatorId}`);
+    const res = await axios.get(`/api/users/${creatorId}`);
     creatorName.value = res.data;
   } catch (error) {
     console.log(error);

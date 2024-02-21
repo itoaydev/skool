@@ -24,10 +24,12 @@ Route::prefix('v1')
     ->group(function () {
         Route::get('/me', User\MeController::class);
     });
-Route::put('/update/{id}', [UserController::class, 'edit']);
-Route::post('/userProfile/{id}', [UserController::class, 'update']);
-Route::get('/user/{id}', [UserController::class, 'show']);
-// Route::get('/users', [UserController::class, 'index']);
+
+Route::prefix('/users')->group(function () {
+    Route::get('/{id}', [UserController::class, 'show']);
+    Route::put('/{id}/updateType', [UserController::class, 'edit']);
+    Route::post('/{id}/update', [UserController::class, 'update']);
+});
 
 Route::get('/group', [GroupController::class, 'index']);
 Route::prefix('/group')->group(function () {
@@ -36,15 +38,6 @@ Route::prefix('/group')->group(function () {
     Route::delete('/{id}/delete', [GroupController::class, 'destroy']);
     Route::get('/{id}/show', [GroupController::class, 'show']);
 });
-Route::post('/groups/{groupId}/join', [GroupController::class, 'joinGroup']);
-
-// Route::post('/posts', [PostController::class, 'store']);
-// Route::get('/showPost/{id}', [PostController::class, 'show']);
-// Route::get('/getPost/{id}', [PostController::class, 'getPost']);
-// Route::put('/post/{id}/update', [PostController::class, 'update']);
-// Route::delete('/post/{id}/delete', [PostController::class, 'destroy']);
-// Route::get('getLike/{id}', [PostController::class, 'getlike']);
-// Route::post('like/{id}', [PostController::class, 'like']);
 
 Route::prefix('/posts')->middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('/store', [PostController::class, 'store']);
@@ -56,5 +49,7 @@ Route::prefix('/posts')->middleware(['auth:sanctum', 'verified'])->group(functio
     Route::post('/like/{id}', [PostController::class, 'like']);
 });
 
-Route::post('/course', [CourseController::class, 'store']);
-Route::get('/getCourse/{id}', [CourseController::class, 'show']);
+Route::prefix('/courses')->group(function () {
+    Route::post('/store', [CourseController::class, 'store']);
+    Route::get('/{id}/show', [CourseController::class, 'show']);
+});

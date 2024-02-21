@@ -775,7 +775,7 @@ const fetchPosts = async (groupId) => {
 
 async function fetchCreatorName(userID) {
   try {
-    const res = await axios.get(`/api/user/${userID}`);
+    const res = await axios.get(`/api/users/${userID}`);
     userData.value = res.data;
   } catch (error) {
     console.error(error);

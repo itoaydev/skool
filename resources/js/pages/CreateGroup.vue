@@ -232,7 +232,7 @@ const handleSubmit = async () => {
       });
 
       if (user.value.id) {
-        await axios.put(`api/update/${user.value.id}`, userData.value);
+        await axios.put(`api/users/${user.value.id}/updateType`, userData.value);
       }
       router.push(`/group-home-page/${response.data.id}`);
     }

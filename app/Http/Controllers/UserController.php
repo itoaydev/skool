@@ -12,7 +12,7 @@ class UserController extends Controller
     {
         return User::find($id);
     }
-    
+
     public function edit(Request $request, string $id)
     {
         $user = User::find($id);
@@ -40,7 +40,6 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found']);
         }
 
-        // Handle image upload
         if ($request->hasFile('image')) {
 
             $oldPicture = $user->image;
@@ -48,11 +47,10 @@ class UserController extends Controller
                 Storage::disk('public')->delete($oldPicture);
             }
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('storage/photos'), $imageName); // Move image to public/storage/photos
+            $imageName = $image->getClientOriginalName();
+            $image->move(public_path('storage/photos'), $imageName);
 
-            // Update user's image path in the database
-            $user->image = 'photos/' . $imageName; // Update the image path in the database
+            $user->image = 'photos/' . $imageName;
             $user->save();
 
             return response()->json(['message' => 'Image uploaded successfully', 'user' => $user]);
@@ -60,5 +58,4 @@ class UserController extends Controller
 
         return response()->json(['message' => 'No image provided']);
     }
-
 }

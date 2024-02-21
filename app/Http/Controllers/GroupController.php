@@ -10,7 +10,7 @@ class GroupController extends Controller
 {
     public function index()
     {
-        return Group::all(); //Get all the data from group model table
+        return Group::all();
     }
 
     /**
@@ -26,24 +26,23 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
-        $newGroup = new Group;
-        $newGroup->group_name = $request->group["group_name"];
-        $newGroup->group_description = $request->group["group_description"];
-        $newGroup->email = $request->group["email"];
-        $newGroup->creator_id = $request->group["creator_id"];
-        $newGroup->save();
+        $group = new Group;
+        $group->group_name = $request->group["group_name"];
+        $group->group_description = $request->group["group_description"];
+        $group->email = $request->group["email"];
+        $group->creator_id = $request->group["creator_id"];
+        $group->save();
 
         if ($request->hasFile('group_picture')) {
-            $link = $request->file('group_picture')->store('photos', 'public');
-            $newGroup->group_picture = $link;
-            $newGroup->save();
-
-            $newGroup->group_picture = asset('storage/' . $newGroup->group_picture);
+            $group_picture = $request->file('group_picture');
+            $imageName = $group_picture->getClientOriginalName();
+            $group_picture->move(public_path('storage/photos'), $imageName);
+            $group->group_picture = 'photos/' . $imageName;
+            $group->save();
         }
 
-        return response()->json($newGroup);
+        return response()->json($group);
     }
-
     /**
      * Display the specified resource.
      */
@@ -53,7 +52,6 @@ class GroupController extends Controller
 
         return response()->json($group);
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -68,65 +66,61 @@ class GroupController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $existingGroup = Group::find($id);
+        $group = Group::find($id);
 
-        if (!$existingGroup) {
+        if (!$group) {
             return response()->json(['error' => 'Group Not Found'], 404);
         }
 
-        $existingGroup->group_name = $request->input('group_name');
-        $existingGroup->group_description = $request->input('group_description');
+        $group->group_name = $request->input('group_name');
+        $group->group_description = $request->input('group_description');
 
         if ($request->hasFile('group_picture')) {
-            $oldPicture = $existingGroup->group_picture;
+            $oldPicture = $group->group_picture;
             if ($oldPicture) {
                 Storage::disk('public')->delete($oldPicture);
             }
 
             $group_picture = $request->file('group_picture');
-            $imageName = time() . '_' . $group_picture->getClientOriginalName();
+            $imageName = $group_picture->getClientOriginalName();
             $group_picture->move(public_path('storage/photos'), $imageName);
 
-            $existingGroup->group_picture = 'photos/' . $imageName;
+            $group->group_picture = 'photos/' . $imageName;
         }
         if ($request->hasFile('group_icon')) {
-            $oldPicture = $existingGroup->group_icon;
+            $oldPicture = $group->group_icon;
             if ($oldPicture) {
                 Storage::disk('public')->delete($oldPicture);
             }
 
             $group_icon = $request->file('group_icon');
-            $iconName = time() . '_' . $group_icon->getClientOriginalName();
+            $iconName = $group_icon->getClientOriginalName();
             $group_icon->move(public_path('storage/photos'), $iconName);
 
-            $existingGroup->group_icon = 'photos/' . $iconName;
+            $group->group_icon = 'photos/' . $iconName;
         }
 
-        $existingGroup->save();
+        $group->save();
 
-        return response()->json($existingGroup);
+        return response()->json($group);
     }
-
-
-
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $existingGroup = Group::find($id);
+        $group = Group::find($id);
 
-        if ($existingGroup) {
-            $existingGroup->delete();
+        if ($group) {
+            $group->delete();
             return "Group Successfully Deleted.";
         }
         return "Group Not Found";
     }
 
-    public function getUsersInGroup($groupId)
+    public function getUsersInGroup($id)
     {
-        $group = Group::findOrFail($groupId);
+        $group = Group::findOrFail($id);
         $users = $group->users;
 
         return response()->json($users);

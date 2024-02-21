@@ -52,7 +52,7 @@ const fetchCurrentUser = async () => {
 
 const getUser = async () => {
   try {
-    const response = await axios.get(`/api/user/${user.value.id}`);
+    const response = await axios.get(`/api/users/${user.value.id}`);
     userData.value = response.data;
   } catch (error) {
     console.log(error);
@@ -75,7 +75,7 @@ const handleUpdate = () => {
     formData.append("image", imageFile);
   }
   axios
-    .post(`/api/userProfile/${user.value.id}`, formData, {
+    .post(`/api/users/${user.value.id}/update`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

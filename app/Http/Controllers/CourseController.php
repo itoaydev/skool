@@ -23,8 +23,11 @@ class CourseController extends Controller
         $course = Course::create($validatedData);
 
         if ($request->hasFile('course_image')) {
-            $imagePath = $request->file('course_image')->store('photos', 'public');
-            $course->course_image = $imagePath;
+            $course_image = $request->file('course_image');
+            $imageName = $course_image->getClientOriginalName();
+            $course_image->move(public_path('storage/photos'), $imageName);
+
+            $course->course_image = 'photos/' . $imageName;
             $course->save();
         }
         return response()->json(['message' => 'Course created successfully', 'course' => $course]);
